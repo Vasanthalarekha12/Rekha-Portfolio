@@ -116,19 +116,15 @@ const About = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
                 transition={{ duration: 0.6, delay: index * 0.2 }}
-                drag
-                dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-                dragElastic={1}
-                whileDrag={{ scale: 1.02, zIndex: 50, cursor: "grabbing" }}
-                className={`relative flex items-center justify-between md:justify-normal ${index % 2 === 0 ? 'md:flex-row-reverse' : ''} group mb-12 last:mb-0 cursor-grab`}
+                className={`relative flex items-center justify-between md:justify-normal ${index % 2 === 0 ? 'md:flex-row-reverse' : ''} group mb-12 last:mb-0`}
               >
                 {/* Timeline dot */}
-                <div className="flex items-center justify-center w-14 h-14 rounded-full border-4 border-[#08080D] bg-[#111118] text-[var(--color-accent)] shadow-[0_0_15px_rgba(255,122,0,0.2)] shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 transition-transform group-hover:scale-110">
+                <div className="flex items-center justify-center w-14 h-14 rounded-full border-4 border-[#08080D] bg-[#111118] text-[var(--color-accent)] shadow-[0_0_15px_rgba(255,122,0,0.2)] shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 transition-transform duration-300 group-hover:scale-110">
                   <Award className="w-6 h-6" />
                 </div>
                 
                 {/* Content Card */}
-                <div className="w-[calc(100%-5rem)] md:w-[calc(50%-3.5rem)] premium-card p-8 group-hover:-translate-y-2 group-hover:border-[var(--color-accent)]/50 transition-all duration-300">
+                <div className="w-[calc(100%-5rem)] md:w-[calc(50%-3.5rem)] premium-card p-8 transition-transform duration-300 hover:-translate-y-1 hover:scale-[1.01] hover:border-[var(--color-accent)]/50">
                   
                   <div className="flex flex-wrap gap-3 items-center mb-4">
                     <span className="text-[var(--color-accent)] font-bold tracking-wider text-sm">{edu.period}</span>

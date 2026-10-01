@@ -27,14 +27,21 @@ const itemVariants = {
 
 const Home = () => {
   return (
-    <div 
-      className="min-h-[100svh] min-h-[100dvh] flex flex-col justify-center relative overflow-hidden selection:bg-[var(--color-accent)] selection:text-[var(--color-text-primary)] w-full"
-      style={{ paddingTop: 'calc(var(--header-height, 60px) + env(safe-area-inset-top))', paddingBottom: 'env(safe-area-inset-bottom)' }}
+    <section 
+      id="home"
+      className="w-full relative overflow-hidden selection:bg-[var(--color-accent)] selection:text-[var(--color-text-primary)]"
+      style={{
+        paddingTop: 'calc(var(--header-height) + 2rem)',
+        minHeight: '100svh'
+      }}
     >
       <InteractiveBackground theme="home" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10 flex-grow flex items-center justify-center">
+      <div 
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10 flex flex-col justify-center pb-8 pt-8 lg:pt-16"
+        style={{ minHeight: 'calc(100svh - var(--header-height) - 2rem)' }}
+      >
         
-        <div className="w-full grid grid-cols-1 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)] gap-8 lg:gap-16 items-center">
+        <div className="w-full h-full grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 lg:gap-16 items-center flex-grow">
           
           {/* Left Column: Text & Intro */}
           <motion.div 
@@ -170,7 +177,7 @@ const Home = () => {
 
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

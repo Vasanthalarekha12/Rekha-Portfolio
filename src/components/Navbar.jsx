@@ -73,113 +73,116 @@ const Navbar = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   const handleNavClick = (e, path) => {
     e.preventDefault();
     const id = path.replace('#', '');
     setActiveSection(id);
-    if (pathname !== '/') {
-      navigate(`/${path}`);
-    } else {
+    
+    const scrollToTarget = () => {
       const element = document.getElementById(id);
       if (element) {
         const y = element.getBoundingClientRect().top + window.scrollY - 80;
         window.scrollTo({ top: y, behavior: 'smooth' });
+        
+        if (id === 'contact') {
+          const cta = document.getElementById('contact-cta');
+          if (cta) {
+            setTimeout(() => {
+              cta.classList.add('ring-4', 'ring-[var(--color-accent)]', 'ring-offset-4', 'ring-offset-[var(--color-bg)]', 'scale-105');
+              setTimeout(() => {
+                cta.classList.remove('ring-4', 'ring-[var(--color-accent)]', 'ring-offset-4', 'ring-offset-[var(--color-bg)]', 'scale-105');
+              }, 1500);
+            }, 800);
+          }
+        }
       }
+    };
+
+    if (pathname !== '/') {
+      navigate(`/${path}`);
+      setTimeout(scrollToTarget, 100);
+    } else {
+      scrollToTarget();
       navigate(path, { replace: true });
     }
     setIsOpen(false);
   };
 
+  const containerVariants = {
+    closed: { opacity: 0, x: '100%' },
+    open: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        type: 'spring',
+        stiffness: 300,
+        damping: 30,
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    },
+    exit: {
+      opacity: 0,
+      x: '100%',
+      transition: {
+        type: 'spring',
+        stiffness: 300,
+        damping: 30,
+        staggerChildren: 0.05,
+        staggerDirection: -1
+      }
+    }
+  };
+
+  const itemVariants = {
+    closed: { opacity: 0, x: 50 },
+    open: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: 50 }
+  };
 
   return (
-    <nav 
-      className={`fixed top-0 md:top-4 left-0 md:left-1/2 md:-translate-x-1/2 w-full md:w-[95%] max-w-5xl z-50 transition-all duration-300 ease-in-out ${
-        scrolled ? 'md:w-[90%] max-w-4xl' : ''
-      }`}
-    >
-      <div 
-        className={`bg-[var(--surface)]/70 backdrop-blur-xl border border-[var(--border-color-light)] shadow-[0_4px_30px_rgba(0,0,0,0.1)] transition-all duration-300 ease-in-out overflow-hidden ${
-          scrolled ? 'md:rounded-[1.25rem]' : 'md:rounded-2xl'
+    <>
+      <nav 
+        className={`fixed top-0 md:top-4 left-0 md:left-1/2 md:-translate-x-1/2 w-full md:w-[95%] max-w-5xl z-50 transition-all duration-300 ease-in-out ${
+          scrolled ? 'md:w-[90%] max-w-4xl' : ''
         }`}
       >
         <div 
-          className={`flex justify-between items-center px-4 md:px-5 transition-all duration-300 ${
-            scrolled ? 'h-[var(--header-height-scrolled)] md:h-[58px]' : 'h-[var(--header-height-mobile)] md:h-[var(--header-height)]'
+          className={`bg-[var(--surface)]/70 backdrop-blur-xl border border-[var(--border-color-light)] shadow-[0_4px_30px_rgba(0,0,0,0.1)] transition-all duration-300 ease-in-out ${
+            scrolled ? 'md:rounded-[1.25rem]' : 'md:rounded-2xl'
           }`}
         >
-          
-          {/* Logo */}
-          <div className="flex items-center shrink-0">
-            <NavLink to="/" className="flex items-center gap-1.5 group" onClick={(e) => handleNavClick(e, '#home')}>
-              <BrainCircuit className="w-5 h-5 text-[var(--color-accent)] group-hover:scale-110 transition-transform duration-300" />
-              <span className="font-serif italic font-bold text-[15px] md:text-[16px] tracking-tight text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors" style={{ fontFamily: '"Playfair Display", serif' }}>
-                Rekha Rani
-              </span>
-            </NavLink>
-          </div>
-          
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-0.5 ml-auto mr-4">
-            {navLinks.map((link) => {
-              const isActive = activeSection === link.path.replace('#', '');
-              return (
-                <a
-                  key={link.name}
-                  href={link.path}
-                  onClick={(e) => handleNavClick(e, link.path)}
-                  className={`relative px-3.5 py-1.5 rounded-full text-[14px] font-medium transition-colors duration-300 ${
-                    isActive ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
-                  }`}
-                >
-                  <span className="relative z-10">{link.name}</span>
-                  {isActive && (
-                    <motion.div
-                      layoutId="nav-pill"
-                      className="absolute inset-0 bg-[var(--color-accent)]/10 rounded-full"
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    />
-                  )}
-                </a>
-              );
-            })}
-          </div>
-
-          {/* Right Actions */}
-          <div className="hidden md:flex items-center gap-3 shrink-0">
-            <button onClick={toggleTheme} className="p-1.5 rounded-full border border-[var(--border-color-light)] text-[var(--color-text-muted)] hover:text-[var(--color-accent)] hover:border-[var(--color-accent)]/40 hover:bg-[var(--color-accent)]/5 transition-all">
-              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </button>
-            <NavLink 
-              to="/contact" 
-              className="px-5 py-1.5 rounded-full bg-[var(--color-accent)] text-white font-semibold text-[13px] hover:bg-[var(--color-accent)] hover:shadow-[0_0_15px_rgba(255,122,0,0.3)] transition-all duration-300"
-            >
-              Hire Me
-            </NavLink>
-          </div>
-
-          {/* Mobile menu button */}
-          <div className="md:hidden flex items-center gap-3">
-            <button onClick={toggleTheme} className="p-1.5 rounded-full border border-[var(--border-color-light)] text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors">
-              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </button>
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="p-1.5 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] focus:outline-none transition-colors"
-            >
-              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </div>
-        </div>
-
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-[var(--color-surface)]/95 backdrop-blur-xl border-t border-[var(--border-color-light)]"
+          <div 
+            className={`flex justify-between items-center px-4 md:px-5 transition-all duration-300 ${
+              scrolled ? 'h-[var(--header-height-scrolled)] md:h-[58px]' : 'h-[var(--header-height-mobile)] md:h-[var(--header-height)]'
+            }`}
           >
-            <div className="px-5 pt-3 pb-6 space-y-1">
+            
+            {/* Logo */}
+            <div className="flex items-center shrink-0">
+              <NavLink to="/" className="flex items-center gap-2 group" onClick={(e) => handleNavClick(e, '#home')}>
+                <div className="relative w-[30px] h-[30px] md:w-[36px] md:h-[36px] rounded-full overflow-hidden border-[2px] border-[var(--color-accent)]/80 shadow-[0_0_12px_rgba(255,122,0,0.25)] group-hover:scale-105 transition-transform duration-300">
+                  <img src="/profile.jpg" alt="Vasanthala Rekha Rani" className="w-full h-full object-cover object-center" />
+                </div>
+                <span className="font-serif italic font-bold text-[15px] md:text-[16px] tracking-tight text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors" style={{ fontFamily: '"Playfair Display", serif' }}>
+                  Rekha Rani
+                </span>
+              </NavLink>
+            </div>
+            
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-0.5 ml-auto mr-4">
               {navLinks.map((link) => {
                 const isActive = activeSection === link.path.replace('#', '');
                 return (
@@ -187,30 +190,101 @@ const Navbar = () => {
                     key={link.name}
                     href={link.path}
                     onClick={(e) => handleNavClick(e, link.path)}
-                    className={`block px-4 py-3.5 rounded-xl text-[15px] font-semibold transition-colors ${
-                      isActive
-                        ? 'bg-[var(--color-accent)]/10 text-[var(--color-accent)]'
-                        : 'text-[var(--color-text-muted)] hover:bg-[var(--border-color-light)] hover:text-[var(--color-text-primary)]'
+                    className={`relative px-3.5 py-1.5 rounded-full text-[14px] font-medium transition-colors duration-300 ${
+                      isActive ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
                     }`}
                   >
-                    {link.name}
+                    <span className="relative z-10">{link.name}</span>
+                    {isActive && (
+                      <motion.div
+                        layoutId="nav-pill"
+                        className="absolute inset-0 bg-[var(--color-accent)]/10 rounded-full"
+                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                      />
+                    )}
                   </a>
                 );
               })}
-              <div className="pt-4 mt-2 border-t border-[var(--border-color-light)]">
-                <NavLink 
-                  to="/contact" 
-                  className="block w-full py-3 text-center rounded-xl bg-[var(--color-accent)] text-white font-semibold text-[15px] hover:bg-[var(--color-accent)] transition-colors shadow-md"
+            </div>
+
+            {/* Right Actions */}
+            <div className="hidden md:flex items-center gap-3 shrink-0">
+              <button onClick={toggleTheme} className="p-1.5 rounded-full border border-[var(--border-color-light)] text-[var(--color-text-muted)] hover:text-[var(--color-accent)] hover:border-[var(--color-accent)]/40 hover:bg-[var(--color-accent)]/5 transition-all">
+                {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </button>
+              <a 
+                href="#contact"
+                onClick={(e) => handleNavClick(e, '#contact')}
+                className="px-5 py-1.5 rounded-full bg-[var(--color-accent)] text-white font-semibold text-[13px] hover:bg-[var(--color-accent)] hover:shadow-[0_0_15px_rgba(255,122,0,0.3)] transition-all duration-300 cursor-pointer"
+              >
+                Hire Me
+              </a>
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden flex items-center gap-3">
+              <button onClick={toggleTheme} className="p-1.5 rounded-full border border-[var(--border-color-light)] text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors">
+                {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </button>
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="relative z-[60] p-1.5 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] focus:outline-none transition-colors"
+              >
+                {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Full-screen Mobile Menu */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            variants={containerVariants}
+            initial="closed"
+            animate="open"
+            exit="exit"
+            className="fixed inset-0 z-[55] md:hidden bg-[var(--color-bg)]/95 backdrop-blur-3xl flex flex-col pt-[var(--header-height-mobile)]"
+          >
+            <div className="flex flex-col h-full px-6 py-8 overflow-y-auto">
+              <div className="flex flex-col gap-4 mt-8">
+                {navLinks.map((link, index) => {
+                  const isActive = activeSection === link.path.replace('#', '');
+                  return (
+                    <motion.div key={link.name} variants={itemVariants}>
+                      <a
+                        href={link.path}
+                        onClick={(e) => handleNavClick(e, link.path)}
+                        className={`block text-3xl font-bold py-2 tracking-tight transition-colors ${
+                          isActive
+                            ? 'text-[var(--color-accent)] pl-4 border-l-4 border-[var(--color-accent)]'
+                            : 'text-[var(--color-text-primary)] hover:text-[var(--color-accent)]'
+                        }`}
+                        style={{ fontFamily: 'var(--font-display)' }}
+                      >
+                        {link.name}
+                      </a>
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              <motion.div variants={itemVariants} className="mt-auto pt-12 pb-8">
+                <div className="w-full h-[1px] bg-[var(--border-color-light)] mb-8" />
+                <a 
+                  href="#contact"
+                  onClick={(e) => handleNavClick(e, '#contact')}
+                  className="flex w-full items-center justify-center py-4 rounded-2xl bg-[var(--color-accent)] text-white font-bold text-lg hover:shadow-[0_0_20px_rgba(255,122,0,0.4)] transition-all cursor-pointer"
                 >
                   Hire Me
-                </NavLink>
-              </div>
+                </a>
+              </motion.div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-      </div>
-    </nav>
+    </>
   );
 };
 

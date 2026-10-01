@@ -158,8 +158,57 @@ const Skills = () => {
                   <div className="absolute w-[300px] h-[300px] border border-[var(--color-border)] rounded-full opacity-30 pointer-events-none" />
                   <div className="absolute w-[450px] h-[450px] border border-[var(--color-border)] border-dashed rounded-full opacity-20 pointer-events-none" />
 
+                  {/* Connections Layer (SVG) */}
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" style={{ minHeight: '500px' }}>
+                    {activeGroup && activeGroup.skills.map((skill, index) => {
+                      const total = activeGroup.skills.length;
+                      const ring = total > 8 ? (index % 2 === 0 ? 1 : 2) : 1.5; 
+                      const radius = ring === 1 ? 150 : ring === 2 ? 225 : 180;
+                      
+                      const angle = (index / total) * Math.PI * 2 - (Math.PI / 2);
+                      const x = `calc(50% + ${Math.cos(angle) * radius}px)`;
+                      const y = `calc(50% + ${Math.sin(angle) * radius}px)`;
+                      
+                      // Adjacent node for constellation effect
+                      const nextIndex = (index + 1) % total;
+                      const nextRing = total > 8 ? (nextIndex % 2 === 0 ? 1 : 2) : 1.5;
+                      const nextRadius = nextRing === 1 ? 150 : nextRing === 2 ? 225 : 180;
+                      const nextAngle = (nextIndex / total) * Math.PI * 2 - (Math.PI / 2);
+                      const nextX = `calc(50% + ${Math.cos(nextAngle) * nextRadius}px)`;
+                      const nextY = `calc(50% + ${Math.sin(nextAngle) * nextRadius}px)`;
+
+                      const isHovered = hoveredSkill === skill.id;
+                      const isAdjacentHovered = hoveredSkill === activeGroup.skills[nextIndex]?.id || 
+                                                hoveredSkill === activeGroup.skills[(index - 1 + total) % total]?.id;
+
+                      return (
+                        <g key={`lines-${skill.id}`}>
+                          {/* Line to center */}
+                          <line 
+                            x1="50%" y1="50%" x2={x} y2={y} 
+                            stroke="var(--color-accent)" 
+                            strokeWidth={isHovered ? 2 : 1}
+                            strokeOpacity={isHovered ? 0.6 : 0.1}
+                            className="transition-all duration-500"
+                          />
+                          {/* Line to next node (Constellation effect) */}
+                          {total > 1 && (
+                            <line 
+                              x1={x} y1={y} x2={nextX} y2={nextY} 
+                              stroke="var(--color-accent)" 
+                              strokeWidth={isHovered || isAdjacentHovered ? 2 : 1}
+                              strokeOpacity={isHovered || isAdjacentHovered ? 0.4 : 0.05}
+                              strokeDasharray="4 4"
+                              className="transition-all duration-500"
+                            />
+                          )}
+                        </g>
+                      );
+                    })}
+                  </svg>
+
                   {/* Skills Orbit Nodes */}
-                  <div className="w-full h-full relative pointer-events-none" style={{ minHeight: '500px' }}>
+                  <div className="w-full h-full relative pointer-events-none z-30" style={{ minHeight: '500px' }}>
                     {activeGroup && activeGroup.skills.map((skill, index) => {
                       const total = activeGroup.skills.length;
                       const ring = total > 8 ? (index % 2 === 0 ? 1 : 2) : 1.5; 
@@ -174,7 +223,7 @@ const Skills = () => {
                       return (
                         <motion.div
                           key={skill.id}
-                          className="absolute z-30 pointer-events-auto"
+                          className="absolute pointer-events-auto"
                           style={{ left: x, top: y, transform: 'translate(-50%, -50%)' }}
                           initial={{ opacity: 0, scale: 0 }}
                           animate={{ opacity: 1, scale: 1 }}
@@ -182,7 +231,7 @@ const Skills = () => {
                           onMouseEnter={() => setHoveredSkill(skill.id)}
                           onMouseLeave={() => setHoveredSkill(null)}
                         >
-                          <div className={`relative group cursor-crosshair transition-all duration-300 ${isHovered ? 'scale-125 z-50' : 'scale-100'}`}>
+                          <div className={`relative group cursor-crosshair transition-all duration-300 ${isHovered ? 'scale-125 z-50' : 'scale-100 z-30'}`}>
                             
                             <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 border-2 backdrop-blur-md ${
                               isHovered 

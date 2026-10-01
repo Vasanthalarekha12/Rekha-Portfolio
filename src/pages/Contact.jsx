@@ -31,7 +31,7 @@ const Contact = () => {
   };
 
   return (
-    <div className="w-full py-24 relative overflow-hidden min-h-screen">
+    <div id="contact" className="w-full py-24 relative overflow-hidden min-h-screen">
       <InteractiveBackground theme="contact" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <SectionHeader label="GET IN TOUCH" title1="Contact" title2="Me" />
@@ -159,6 +159,7 @@ const Contact = () => {
                 </div>
 
                 <button
+                  id="contact-cta"
                   type="submit"
                   disabled={isSubmitting}
                   className="w-full flex items-center justify-center gap-2 py-4 px-6 bg-[var(--color-accent)] text-[var(--color-text-primary)] rounded-xl font-bold tracking-wide hover:bg-[var(--color-accent)] hover:shadow-[0_0_20px_rgba(255,122,0,0.3)] transition-all disabled:opacity-50 disabled:cursor-not-allowed group mt-4"
