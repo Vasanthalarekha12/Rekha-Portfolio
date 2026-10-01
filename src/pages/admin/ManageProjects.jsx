@@ -5,6 +5,7 @@ import { Plus, Edit2, Trash2, Image as ImageIcon, X } from 'lucide-react';
 
 const ManageProjects = () => {
   const [projects, setProjects] = useState([]);
+  const [selected, setSelected] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -76,11 +77,43 @@ const ManageProjects = () => {
     if (window.confirm('Are you sure you want to delete this project?')) {
       try {
         await deleteDocument('projects', id);
+        setSelected(selected.filter(itemId => itemId !== id));
         fetchProjects();
       } catch (error) {
         console.error(error);
         alert('Error deleting project');
       }
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (window.confirm(`Are you sure you want to delete ${selected.length} selected project(s)?`)) {
+      try {
+        for (const id of selected) {
+          await deleteDocument('projects', id);
+        }
+        setSelected([]);
+        fetchProjects();
+      } catch (error) {
+        console.error(error);
+        alert('Error deleting projects');
+      }
+    }
+  };
+
+  const toggleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelected(projects.map(p => p.id));
+    } else {
+      setSelected([]);
+    }
+  };
+
+  const toggleSelect = (id) => {
+    if (selected.includes(id)) {
+      setSelected(selected.filter(item => item !== id));
+    } else {
+      setSelected([...selected, id]);
     }
   };
 
@@ -106,23 +139,42 @@ const ManageProjects = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">Manage Projects</h1>
-        <button
-          onClick={() => {
-            setEditingId(null);
-            setFormData({ title: '', date: '', description: '', technologies: '', githubUrl: '', liveUrl: '', imageUrl: '', order: 0 });
-            setIsModalOpen(true);
-          }}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          <Plus className="w-4 h-4" />
-          Add Project
-        </button>
+        <div className="flex gap-3">
+          {selected.length > 0 && (
+            <button
+              onClick={handleBulkDelete}
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete Selected ({selected.length})
+            </button>
+          )}
+          <button
+            onClick={() => {
+              setEditingId(null);
+              setFormData({ title: '', date: '', description: '', technologies: '', githubUrl: '', liveUrl: '', imageUrl: '', order: 0 });
+              setIsModalOpen(true);
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Add Project
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-100">
+              <th className="px-6 py-4 w-12">
+                <input 
+                  type="checkbox" 
+                  checked={projects.length > 0 && selected.length === projects.length}
+                  onChange={toggleSelectAll}
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                />
+              </th>
               <th className="px-6 py-4 text-sm font-medium text-gray-500">Project</th>
               <th className="px-6 py-4 text-sm font-medium text-gray-500">Date</th>
               <th className="px-6 py-4 text-sm font-medium text-gray-500 text-right">Actions</th>
@@ -130,7 +182,15 @@ const ManageProjects = () => {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {projects.map(project => (
-              <tr key={project.id} className="hover:bg-gray-50">
+              <tr key={project.id} className={`hover:bg-gray-50 ${selected.includes(project.id) ? 'bg-blue-50/50' : ''}`}>
+                <td className="px-6 py-4">
+                  <input 
+                    type="checkbox" 
+                    checked={selected.includes(project.id)}
+                    onChange={() => toggleSelect(project.id)}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  />
+                </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded bg-gray-100 flex items-center justify-center overflow-hidden shrink-0">

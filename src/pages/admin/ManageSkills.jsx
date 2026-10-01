@@ -4,6 +4,7 @@ import { Plus, Trash2 } from 'lucide-react';
 
 const ManageSkills = () => {
   const [skills, setSkills] = useState([]);
+  const [selected, setSelected] = useState([]);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({ name: '', category: 'Programming' });
 
@@ -43,6 +44,7 @@ const ManageSkills = () => {
     if (window.confirm('Delete this skill?')) {
       try {
         await deleteDocument('skills', id);
+        setSelected(selected.filter(itemId => itemId !== id));
         fetchSkills();
       } catch (error) {
         console.error(error);
@@ -50,11 +52,53 @@ const ManageSkills = () => {
     }
   };
 
+  const handleBulkDelete = async () => {
+    if (window.confirm(`Are you sure you want to delete ${selected.length} selected skill(s)?`)) {
+      try {
+        for (const id of selected) {
+          await deleteDocument('skills', id);
+        }
+        setSelected([]);
+        fetchSkills();
+      } catch (error) {
+        console.error(error);
+        alert('Error deleting skills');
+      }
+    }
+  };
+
+  const toggleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelected(skills.map(s => s.id));
+    } else {
+      setSelected([]);
+    }
+  };
+
+  const toggleSelect = (id) => {
+    if (selected.includes(id)) {
+      setSelected(selected.filter(item => item !== id));
+    } else {
+      setSelected([...selected, id]);
+    }
+  };
+
   if (loading) return <div>Loading skills...</div>;
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">Manage Skills</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-gray-900">Manage Skills</h1>
+        {selected.length > 0 && (
+          <button
+            onClick={handleBulkDelete}
+            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            <Trash2 className="w-4 h-4" />
+            Delete Selected ({selected.length})
+          </button>
+        )}
+      </div>
       
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
         <h2 className="text-lg font-bold mb-4">Add New Skill</h2>
@@ -79,6 +123,14 @@ const ManageSkills = () => {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-100">
+              <th className="px-6 py-4 w-12">
+                <input 
+                  type="checkbox" 
+                  checked={skills.length > 0 && selected.length === skills.length}
+                  onChange={toggleSelectAll}
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                />
+              </th>
               <th className="px-6 py-4 text-sm font-medium text-gray-500">Category</th>
               <th className="px-6 py-4 text-sm font-medium text-gray-500">Skill</th>
               <th className="px-6 py-4 text-sm font-medium text-gray-500 text-right">Actions</th>
@@ -86,7 +138,15 @@ const ManageSkills = () => {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {skills.map(skill => (
-              <tr key={skill.id} className="hover:bg-gray-50">
+              <tr key={skill.id} className={`hover:bg-gray-50 ${selected.includes(skill.id) ? 'bg-blue-50/50' : ''}`}>
+                <td className="px-6 py-4">
+                  <input 
+                    type="checkbox" 
+                    checked={selected.includes(skill.id)}
+                    onChange={() => toggleSelect(skill.id)}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  />
+                </td>
                 <td className="px-6 py-4 text-sm text-gray-900">{skill.category}</td>
                 <td className="px-6 py-4 text-sm font-medium text-gray-900">{skill.name}</td>
                 <td className="px-6 py-4 text-right">

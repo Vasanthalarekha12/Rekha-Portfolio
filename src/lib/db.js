@@ -1,5 +1,5 @@
 import { db } from './firebase';
-import { collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
+import { collection, doc, getDocs, getDoc, addDoc, updateDoc, setDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
 
 export const getCollection = async (collectionName, orderByField = null) => {
   try {
@@ -50,6 +50,20 @@ export const updateDocument = async (collectionName, id, data) => {
     return { id, ...data };
   } catch (error) {
     console.error(`Error updating document ${collectionName}/${id}:`, error);
+    throw error;
+  }
+};
+
+export const setDocument = async (collectionName, id, data) => {
+  try {
+    const docRef = doc(db, collectionName, id);
+    await setDoc(docRef, {
+      ...data,
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
+    return { id, ...data };
+  } catch (error) {
+    console.error(`Error setting document ${collectionName}/${id}:`, error);
     throw error;
   }
 };

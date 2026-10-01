@@ -1,16 +1,18 @@
 import { NavLink } from 'react-router-dom';
 import { 
-  LayoutDashboard, 
+  LayoutDashboard,
   Briefcase, 
   Code2, 
   Award, 
   MessageSquare,
+  User,
   LogOut
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const navItems = [
   { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
+  { name: 'Profile', path: '/admin/profile', icon: User },
   { name: 'Projects', path: '/admin/projects', icon: Briefcase },
   { name: 'Skills', path: '/admin/skills', icon: Code2 },
   { name: 'Certifications', path: '/admin/certifications', icon: Award },

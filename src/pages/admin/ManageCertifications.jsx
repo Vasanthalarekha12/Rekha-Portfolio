@@ -5,6 +5,7 @@ import { Plus, Edit2, Trash2, X } from 'lucide-react';
 
 const ManageCertifications = () => {
   const [certifications, setCertifications] = useState([]);
+  const [selected, setSelected] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -56,10 +57,42 @@ const ManageCertifications = () => {
     if (window.confirm('Delete this certification?')) {
       try {
         await deleteDocument('certifications', id);
+        setSelected(selected.filter(itemId => itemId !== id));
         fetchCerts();
       } catch (error) {
         console.error(error);
       }
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (window.confirm(`Are you sure you want to delete ${selected.length} selected certification(s)?`)) {
+      try {
+        for (const id of selected) {
+          await deleteDocument('certifications', id);
+        }
+        setSelected([]);
+        fetchCerts();
+      } catch (error) {
+        console.error(error);
+        alert('Error deleting certifications');
+      }
+    }
+  };
+
+  const toggleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelected(certifications.map(c => c.id));
+    } else {
+      setSelected([]);
+    }
+  };
+
+  const toggleSelect = (id) => {
+    if (selected.includes(id)) {
+      setSelected(selected.filter(item => item !== id));
+    } else {
+      setSelected([...selected, id]);
     }
   };
 
@@ -85,23 +118,42 @@ const ManageCertifications = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">Manage Certifications</h1>
-        <button
-          onClick={() => {
-            setEditingId(null);
-            setFormData({ name: '', organization: '', date: '', verifyUrl: '', pdfUrl: '', order: 0 });
-            setIsModalOpen(true);
-          }}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          <Plus className="w-4 h-4" />
-          Add Certification
-        </button>
+        <div className="flex gap-3">
+          {selected.length > 0 && (
+            <button
+              onClick={handleBulkDelete}
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete Selected ({selected.length})
+            </button>
+          )}
+          <button
+            onClick={() => {
+              setEditingId(null);
+              setFormData({ name: '', organization: '', date: '', verifyUrl: '', pdfUrl: '', order: 0 });
+              setIsModalOpen(true);
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Add Certification
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-100">
+              <th className="px-6 py-4 w-12">
+                <input 
+                  type="checkbox" 
+                  checked={certifications.length > 0 && selected.length === certifications.length}
+                  onChange={toggleSelectAll}
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                />
+              </th>
               <th className="px-6 py-4 text-sm font-medium text-gray-500">Name</th>
               <th className="px-6 py-4 text-sm font-medium text-gray-500">Organization</th>
               <th className="px-6 py-4 text-sm font-medium text-gray-500 text-right">Actions</th>
@@ -109,7 +161,15 @@ const ManageCertifications = () => {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {certifications.map(cert => (
-              <tr key={cert.id} className="hover:bg-gray-50">
+              <tr key={cert.id} className={`hover:bg-gray-50 ${selected.includes(cert.id) ? 'bg-blue-50/50' : ''}`}>
+                <td className="px-6 py-4">
+                  <input 
+                    type="checkbox" 
+                    checked={selected.includes(cert.id)}
+                    onChange={() => toggleSelect(cert.id)}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  />
+                </td>
                 <td className="px-6 py-4 text-sm font-medium text-gray-900">{cert.name}</td>
                 <td className="px-6 py-4 text-sm text-gray-500">{cert.organization}</td>
                 <td className="px-6 py-4 text-right space-x-2">
