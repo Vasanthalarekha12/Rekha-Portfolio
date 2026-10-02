@@ -6,11 +6,16 @@ import Skills from './Skills';
 import Certifications from './Certifications';
 import Contact from './Contact';
 import { useLocation } from 'react-router-dom';
+import RevealSection from '../components/RevealSection';
 
 const MainPortfolio = () => {
   const { hash } = useLocation();
 
   useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+
     if (hash) {
       setTimeout(() => {
         const element = document.querySelector(hash);
@@ -20,30 +25,30 @@ const MainPortfolio = () => {
         }
       }, 100);
     } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     }
   }, [hash]);
 
   return (
     <div className="flex flex-col">
-      <section id="home">
+      <RevealSection id="home">
         <Home />
-      </section>
-      <section id="about">
+      </RevealSection>
+      <RevealSection id="about">
         <About />
-      </section>
-      <section id="projects">
+      </RevealSection>
+      <RevealSection id="projects">
         <Projects />
-      </section>
-      <section id="skills">
+      </RevealSection>
+      <RevealSection id="skills">
         <Skills />
-      </section>
-      <section id="certifications">
+      </RevealSection>
+      <RevealSection id="certifications">
         <Certifications />
-      </section>
-      <section id="contact">
+      </RevealSection>
+      <RevealSection id="contact">
         <Contact />
-      </section>
+      </RevealSection>
     </div>
   );
 };

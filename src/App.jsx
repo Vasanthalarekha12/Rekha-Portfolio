@@ -26,11 +26,31 @@ function App() {
 
   useEffect(() => {
     // If you want to do any asset preloading, do it here.
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    if (!window.location.hash) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
   }, []);
+
+  useEffect(() => {
+    if (isBooting) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isBooting]);
 
   const handlePreloaderComplete = () => {
     setIsBooting(false);
     setShowMainContent(true);
+    if (!window.location.hash) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
   };
 
   const whatsappMessage = encodeURIComponent("Hi! 👋 I just came across your portfolio and really liked your work! 🚀 I'd love to connect with you and know more about your projects and services. 😊 Looking forward to talking with you!");

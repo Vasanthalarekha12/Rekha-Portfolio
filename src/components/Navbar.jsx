@@ -67,11 +67,19 @@ const Navbar = () => {
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
 
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
     return () => {
       observer.disconnect();
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen) {
@@ -159,8 +167,8 @@ const Navbar = () => {
         }`}
       >
         <div 
-          className={`bg-[var(--surface)]/70 backdrop-blur-xl border border-[var(--border-color-light)] shadow-[0_4px_30px_rgba(0,0,0,0.1)] transition-all duration-300 ease-in-out ${
-            scrolled ? 'md:rounded-[1.25rem]' : 'md:rounded-2xl'
+          className={`bg-[var(--surface)]/70 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.1)] transition-all duration-300 ease-in-out ${
+            scrolled ? 'md:rounded-[1.25rem] ring-1 ring-white/[0.02]' : 'md:rounded-2xl'
           }`}
         >
           <div 
@@ -245,10 +253,29 @@ const Navbar = () => {
             initial="closed"
             animate="open"
             exit="exit"
-            className="fixed inset-0 z-[55] md:hidden bg-[var(--color-bg)]/95 backdrop-blur-3xl flex flex-col pt-[var(--header-height-mobile)]"
+            className="fixed inset-0 z-[100] md:hidden bg-[var(--color-bg)]/95 backdrop-blur-3xl flex flex-col"
           >
-            <div className="flex flex-col h-full px-6 py-8 overflow-y-auto">
-              <div className="flex flex-col gap-4 mt-8">
+            {/* Mobile Menu Header */}
+            <div className="flex items-center justify-between px-4 h-[var(--header-height-mobile)] shrink-0 border-b border-[var(--border-color-light)]">
+              <div className="flex items-center gap-2">
+                <div className="relative w-[30px] h-[30px] rounded-full overflow-hidden border-[2px] border-[var(--color-accent)]/80 shadow-[0_0_12px_rgba(255,122,0,0.25)]">
+                  <img src="/profile.jpg" alt="Vasanthala Rekha Rani" className="w-full h-full object-cover object-center" />
+                </div>
+                <span className="font-serif italic font-bold text-[15px] tracking-tight text-[var(--color-text-primary)]" style={{ fontFamily: '"Playfair Display", serif' }}>
+                  Rekha Rani
+                </span>
+              </div>
+              <button 
+                onClick={() => setIsOpen(false)} 
+                className="flex items-center justify-center w-11 h-11 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors rounded-full active:bg-white/5"
+                aria-label="Close menu"
+              >
+                <X className="w-7 h-7" />
+              </button>
+            </div>
+
+            <div className="flex flex-col h-full px-6 py-4 overflow-y-auto">
+              <div className="flex flex-col gap-4 mt-4">
                 {navLinks.map((link, index) => {
                   const isActive = activeSection === link.path.replace('#', '');
                   return (
